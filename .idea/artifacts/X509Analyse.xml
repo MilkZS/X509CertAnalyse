@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="X509Analyse">
+    <output-path>$PROJECT_DIR$/out/artifacts/X509Analyse</output-path>
+    <root id="archive" name="X509Analyse.jar">
+      <element id="module-output" name="X509CertAnalyse" />
+    </root>
+  </artifact>
+</component>
