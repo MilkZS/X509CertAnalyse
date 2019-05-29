@@ -3,6 +3,9 @@ package com.milkdz.x509.test;
 import com.milkdz.x509.ZCertificateData;
 import com.milkdz.x509.ZX509Certificate;
 import com.milkdz.x509.bean.DistinguishName;
+import com.milkdz.x509.bean.Issuer;
+import com.milkdz.x509.bean.Subject;
+import com.milkdz.x509.util.ByteArrayBuffer;
 import com.milkdz.x509.util.StringUtil;
 
 /**
@@ -18,6 +21,19 @@ public class mm {
         certificate.parse(certArr);
         ZCertificateData certificateData = certificate.getM_tbsCertificate();
         DistinguishName issueName = certificateData.getIssuer();
+        Issuer issuer = new Issuer();
+        ByteArrayBuffer byteArrayBuffer = issueName.make();
+//        System.out.println(StringUtil.toHex(byteArrayBuffer.buffer()));
+        issuer.parse(byteArrayBuffer);
+//        System.out.println(issuer.getIssuer() + "/" + issuer.getCommonName() + "/" + issuer.getCountryName() + "/" + issuer.getOrganizationName());
+
+        DistinguishName subjectName = certificateData.getSubject();
+        Subject subject = new Subject();
+        ByteArrayBuffer buffer = subjectName.make();
+        System.out.println(StringUtil.toHex(buffer.buffer()));
+        subject.parse(buffer);
+        System.out.println(subject.getSubject() + "/" + subject.getCommonName() + "/"
+                + subject.getCountryName() + "/"+subject.getOrganizationName() + "/" + subject.getOrganizationnlUnitName());
     }
 
 }
