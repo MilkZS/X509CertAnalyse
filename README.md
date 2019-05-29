@@ -1,6 +1,8 @@
 # X509CertAnalyse
 
-&ensp;&ensp;&ensp;&ensp;由于Android 5以下，SDK自带的X509证书解析使用会出错，貌似和Android系统有关，所以一怒之下， 修改优化了这个工具包，这个工具包完全不依赖任何第三方包，纯JAVA代码解析，不依赖任何系统，SDK。
+## [README OF CHINESE][readme_cn]
+
+&ensp;&ensp;&ensp;&ensp;Because under Android 5, the X509 certificate parsing used by SDK will make mistakes, which seems to be related to Android system, so in a fit of anger, the toolkit has been modified and optimized. This toolkit is completely independent of any third-party package, pure JAVA code parsing, and no system, SDK.
 
 ### Demo
 
