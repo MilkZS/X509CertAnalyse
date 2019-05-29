@@ -1,4 +1,4 @@
-package com.milkdz.x509;
+package com.milkdz.x509.impl;
 
 import com.milkdz.x509.bean.*;
 import com.milkdz.x509.tlv.ZTLVBase;
@@ -15,30 +15,30 @@ public class ZCertificateData {
 	TBSCertificate ::= SEQUENCE {
 	    version [0] EXPLICIT Version DEFAULT v1, --证书版本号
 	    serialNumber CertificateSerialNumber, --证书序列号，对同一CA所颁发的证书，序列号唯一标识证书
-	    signature AlgorithmIdentifier, --证书签名算法标识
+	    signature AlgorithmIdentifierImpl, --证书签名算法标识
 	    issuer Name, --证书发行者名称
 	    validityTime ValidityTime, --证书有效期
 	    subject Name, --证书主体名称
-	    subjectPublicKeyInfo SubjectPublicKeyInfo, --证书公钥
+	    subjectPublicKeyInfoImpl SubjectPublicKeyInfoImpl, --证书公钥
 	    issuerUniqueID [1] IMPLICIT UniqueIdentifier OPTIONAL, -- 证书发行者ID(可选)，只在证书版本2、3中才有
 	    subjectUniqueID [2] IMPLICIT UniqueIdentifier OPTIONAL, --证书主体ID(可选)，只在证书版本2、3中才有
 	    extensions [3] EXPLICIT Extensions OPTIONAL --证书扩展段（可选），只在证书版本2、3中才有 }
 	*/
     private int version;
     private ZTLVInteger serialNumber;
-    private AlgorithmIdentifier algorithmIdentifier;
+    private AlgorithmIdentifierImpl algorithmIdentifierImpl;
     private DistinguishName issuer;
-    private ValidityTime validityTime;
+    private ValidityTimeimpl validityTime;
     private DistinguishName subject;
-    private SubjectPublicKeyInfo subjectPublicKeyInfo;
+    private SubjectPublicKeyInfoImpl subjectPublicKeyInfoImpl;
 
     public ZCertificateData() {
         this.serialNumber = new ZTLVInteger();
-        this.algorithmIdentifier = new AlgorithmIdentifier();
+        this.algorithmIdentifierImpl = new AlgorithmIdentifierImpl();
         this.issuer = new DistinguishName();
-        this.validityTime = new ValidityTime();
+        this.validityTime = new ValidityTimeimpl();
         this.subject = new DistinguishName();
-        this.subjectPublicKeyInfo = new SubjectPublicKeyInfo();
+        this.subjectPublicKeyInfoImpl = new SubjectPublicKeyInfoImpl();
     }
 
     public boolean parse(ZTLVBase cerBody) {
@@ -63,11 +63,11 @@ public class ZCertificateData {
         // 版本号
         if (!parseVersion(versionBase)) return false;
         if (!serialNumber.parse(serialBase)) return false;
-        if (!algorithmIdentifier.parse(algorithmIdentifierBase)) return false;
+        if (!algorithmIdentifierImpl.parse(algorithmIdentifierBase)) return false;
         if (!issuer.parse(issuerBase)) return false;
         if (!validityTime.parse(validateBase)) return false;
         if (!subject.parse(subjectBase)) return false;
-        return subjectPublicKeyInfo.parse(publicKeyInfoBase);
+        return subjectPublicKeyInfoImpl.parse(publicKeyInfoBase);
     }
 
     private boolean parseVersion(ZTLVBase base) {
@@ -80,7 +80,7 @@ public class ZCertificateData {
             return false;
 
         //Version,目前没有做值校验，但实际上最高版本号目前应该只有V3
-        this.version = versionByteArr[2] + 1;
+        this.version = versionByteArr[2] ;
         return true;
     }
 
@@ -92,15 +92,15 @@ public class ZCertificateData {
         return serialNumber;
     }
 
-    public AlgorithmIdentifier getAlgorithmIdentifier() {
-        return algorithmIdentifier;
+    public AlgorithmIdentifierImpl getAlgorithmIdentifierImpl() {
+        return algorithmIdentifierImpl;
     }
 
     public DistinguishName getIssuer() {
         return issuer;
     }
 
-    public ValidityTime getValidityTime() {
+    public ValidityTimeimpl getValidityTime() {
         return validityTime;
     }
 
@@ -108,7 +108,7 @@ public class ZCertificateData {
         return subject;
     }
 
-    public SubjectPublicKeyInfo getSubjectPublicKeyInfo() {
-        return subjectPublicKeyInfo;
+    public SubjectPublicKeyInfoImpl getSubjectPublicKeyInfoImpl() {
+        return subjectPublicKeyInfoImpl;
     }
 }

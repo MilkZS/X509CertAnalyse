@@ -1,5 +1,8 @@
-package com.milkdz.x509.bean;
+package com.milkdz.x509.impl;
 
+import com.milkdz.x509.bean.ASNTAGBean;
+import com.milkdz.x509.bean.SubjectPublicKey;
+import com.milkdz.x509.impl.AlgorithmIdentifierImpl;
 import com.milkdz.x509.tlv.ZTLVBase;
 import com.milkdz.x509.tlv.ZTLVBitString;
 import com.milkdz.x509.tlv.ZTLVContain;
@@ -9,22 +12,24 @@ import com.milkdz.x509.util.ByteArrayBuffer;
 /**
  * Created by MilkZS on 2019/5/22 16:51
  */
-public class SubjectPublicKeyInfo {
+public class SubjectPublicKeyInfoImpl {
 
-    private AlgorithmIdentifier m_algoIdentifier;
-    private ZTLVBitString m_publicKey;
+    private SubjectPublicKey subjectPublicKey;
+    private AlgorithmIdentifierImpl algorithmIdentifierImpl;
+    private ZTLVBitString publicKeyBitStr;
 
-    public SubjectPublicKeyInfo() {
-        m_algoIdentifier = new AlgorithmIdentifier();
-        m_publicKey = new ZTLVBitString();
+    public SubjectPublicKeyInfoImpl() {
+        this.subjectPublicKey = new SubjectPublicKey();
+        this.algorithmIdentifierImpl = new AlgorithmIdentifierImpl();
+        publicKeyBitStr = new ZTLVBitString();
     }
 
-    public void setAlgorithmIdentifier(AlgorithmIdentifier algoIdentifier) {
-        m_algoIdentifier = algoIdentifier;
+    public void setAlgorithmIdentifier(AlgorithmIdentifierImpl algoIdentifier) {
+        algorithmIdentifierImpl = algoIdentifier;
     }
 
-    public AlgorithmIdentifier getAlgorithmIdentifier() {
-        return m_algoIdentifier;
+    public AlgorithmIdentifierImpl getAlgorithmIdentifier() {
+        return algorithmIdentifierImpl;
     }
 
     //将传入的纯公钥
@@ -44,7 +49,7 @@ public class SubjectPublicKeyInfo {
                 } else {
                     System.arraycopy(publicKey, 0, pubkey, 0, 65);
                 }
-                m_publicKey.setValue(pubkey);
+                publicKeyBitStr.setValue(pubkey);
                 return true;
             } else {
                 return false;
@@ -76,17 +81,17 @@ public class SubjectPublicKeyInfo {
             tempItem.append(exponent.make().buffer(), 0, exponent.make().length());
             item.setValue(tempItem);
 
-            m_publicKey.setValue(item.getEncodingData());
+            publicKeyBitStr.setValue(item.getEncodingData());
             return true;
         }
     }
 
     public void setPublicKey(ZTLVBitString publicKey) {
-        m_publicKey = publicKey;
+        publicKeyBitStr = publicKey;
     }
 
     public ZTLVBitString getPublicKey() {
-        return m_publicKey;
+        return publicKeyBitStr;
     }
 
     public boolean parse(ZTLVBase item) {
@@ -100,14 +105,14 @@ public class SubjectPublicKeyInfo {
         ZTLVBase publicKey = container.getItem(1);
 
         // 算法标识
-        if (!m_algoIdentifier.parse(algoIdentifier)) return false;
+        if (!algorithmIdentifierImpl.parse(algoIdentifier)) return false;
         // 公钥
-        return m_publicKey.parse(publicKey);
+        return publicKeyBitStr.parse(publicKey);
     }
 
     public ByteArrayBuffer make() {
-        ByteArrayBuffer algoIdentifiterDer = m_algoIdentifier.make();
-        ByteArrayBuffer publicKeyDer = m_publicKey.make();
+        ByteArrayBuffer algoIdentifiterDer = algorithmIdentifierImpl.make();
+        ByteArrayBuffer publicKeyDer = publicKeyBitStr.make();
 
         if (algoIdentifiterDer.isEmpty() || publicKeyDer.isEmpty()) {
             return null;
@@ -121,5 +126,11 @@ public class SubjectPublicKeyInfo {
         tempoutDer.append(publicKeyDer.buffer(), 0, publicKeyDer.length());
         outDer.setValue(tempoutDer);
         return outDer.getEncodingData();
+    }
+
+    public SubjectPublicKey getSubjectPublicKey() {
+        this.subjectPublicKey.algorithmIdentifier = algorithmIdentifierImpl.getAlgorithmIdentifier();
+        this.subjectPublicKey.setPublicKeyInfo(publicKeyBitStr.getValue().buffer());
+        return this.subjectPublicKey;
     }
 }

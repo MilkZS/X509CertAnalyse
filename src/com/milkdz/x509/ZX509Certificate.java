@@ -1,82 +1,48 @@
 package com.milkdz.x509;
 
-import com.milkdz.x509.bean.AlgorithmIdentifier;
-import com.milkdz.x509.tlv.ZTLVBase;
-import com.milkdz.x509.tlv.ZTLVBitString;
-import com.milkdz.x509.tlv.ZTLVContain;
-import com.milkdz.x509.util.ByteArrayBuffer;
+import com.milkdz.x509.bean.*;
+import com.milkdz.x509.impl.*;
 
 /**
- * Created by MilkZS on 2019/5/22 11:03
+ * Created by zuoqi@bhz.com.cn on 2019/5/29 15:58
  */
 public class ZX509Certificate {
 
-    private ByteArrayBuffer m_certData;
-    private int m_certLength;
+    private int version;
+    public Issuer issuer;
+    public Subject subject;
+    public ValidityTime time;
+    public AlgorithmIdentifier algorithmIdentifier;
+    public SubjectPublicKey subjectPublicKey;
 
+    public ZX509Certificate(byte[] certArr) {
+        ZX509CertificateImpl certificate = new ZX509CertificateImpl();
+        certificate.parse(certArr);
+        ZCertificateData certificateData = certificate.getM_tbsCertificate();
 
-    private ZCertificateData m_tbsCertificate = new ZCertificateData();               //证书主体
-    private AlgorithmIdentifier m_signatureAlgorithm = new AlgorithmIdentifier();    //签名算法标识（签名算法OID，应与TBS中的签名算法标识一致）
-    private ZTLVBitString m_signatureValue = new ZTLVBitString();              //签名值
+        DistinguishName issueName = certificateData.getIssuer();
+        IssuerImpl issuerImpl = new IssuerImpl();
+        issuerImpl.parse(issueName.make());
+        this.issuer = issuerImpl.getIssuer();
 
-    /*
-    Certificate  ::=  SEQUENCE  {
-        tbsCertificate       TBSCertificate，
-        signatureAlgorithm   AlgorithmIdentifier，
-        signatureValue       BIT STRING  }
-    */
-    public boolean parse(byte[] pbData) {
-        m_certData = new ByteArrayBuffer(pbData.length);
-        m_certData.append(pbData, 0, pbData.length);
+        DistinguishName subjectName = certificateData.getSubject();
+        SubjectImpl subjectimpl = new SubjectImpl();
+        subjectimpl.parse(subjectName.make());
+        this.subject = subjectimpl.getSubject();
 
-        //解析整张证书
-        ZTLVBase cert = new ZTLVBase();
-        if (!ZTLVBase.dump(m_certData, cert)) return false;
+        ValidityTimeimpl validityTimeimpl = certificateData.getValidityTime();
+        this.time = validityTimeimpl.getValidityTime();
+        this.version = certificateData.getVersion();
 
-        //获取证书body
-        ByteArrayBuffer certBody = cert.getValue();
-        if (certBody == null) return false;
+        AlgorithmIdentifierImpl algIdentifier = certificateData.getAlgorithmIdentifierImpl();
+        this.algorithmIdentifier = algIdentifier.getAlgorithmIdentifier();
 
-        //解析证书body,证书body应该由3个SEQUENCE结构组成:TBSCertificate,SignatureAlgorithm(摘要算法)和SignatureValue(对TBS部分的签名值的摘要)
-        ZTLVContain certCon = new ZTLVContain();
-        if (!certCon.parse(certBody)) return false;
-        if (3 != certCon.itemCount()) return false;
-
-
-        ZTLVBase tbsCert = certCon.getItem(0);
-        ZTLVBase signAlgo = certCon.getItem(1);
-        ZTLVBase signature = certCon.getItem(2);
-
-        //解析证书主体部分
-        if (!m_tbsCertificate.parse(tbsCert)) return false;
-
-        //解析签名算法部分
-        if (!m_signatureAlgorithm.parse(signAlgo)) return false;
-
-        //解析签名值
-        if (!m_signatureValue.parse(signature)) return false;
-
-        m_certLength = cert.getEncodingDataSize();
-        return true;
+        SubjectPublicKeyInfoImpl subjectPublicKeyInfoImpl = certificateData.getSubjectPublicKeyInfoImpl();
+        this.subjectPublicKey = subjectPublicKeyInfoImpl.getSubjectPublicKey();
     }
 
-    public ByteArrayBuffer getM_certData() {
-        return m_certData;
-    }
 
-    public int getM_certLength() {
-        return m_certLength;
-    }
-
-    public ZCertificateData getM_tbsCertificate() {
-        return m_tbsCertificate;
-    }
-
-    public AlgorithmIdentifier getM_signatureAlgorithm() {
-        return m_signatureAlgorithm;
-    }
-
-    public ZTLVBitString getM_signatureValue() {
-        return m_signatureValue;
+    public int getVersion() {
+        return version;
     }
 }
