@@ -1,6 +1,6 @@
 # X509CertAnalyse
 
-## [README OF CHINESE](https://github.com/Blankj/AndroidUtilCode/blob/master/README-CN.md)
+## [README OF CHINESE](https://github.com/MilkZS/X509CertAnalyse/blob/master/README_CN.md)
 
 &ensp;&ensp;&ensp;&ensp;Because under Android 5, the X509 certificate parsing used by SDK will make mistakes, which seems to be related to Android system, so in a fit of anger, the toolkit has been modified and optimized. This toolkit is completely independent of any third-party package, pure JAVA code parsing, and no system, SDK.
 
