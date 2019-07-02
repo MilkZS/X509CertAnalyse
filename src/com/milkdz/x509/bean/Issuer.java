@@ -6,7 +6,10 @@ package com.milkdz.x509.bean;
 public class Issuer {
 
     private String countryName;
+    private String stateOrProvinceName;
+    private String localityName;
     private String organizationName;
+    private String organizationalUnitName;
     private String commonName;
     private String issuer;
 
@@ -24,6 +27,30 @@ public class Issuer {
 
     public void setIssuer(String issuer) {
         this.issuer = issuer;
+    }
+
+    public void setStateOrProvinceName(String stateOrProvinceName) {
+        this.stateOrProvinceName = stateOrProvinceName;
+    }
+
+    public void setLocalityName(String localityName) {
+        this.localityName = localityName;
+    }
+
+    public void setOrganizationalUnitName(String organizationalUnitName) {
+        this.organizationalUnitName = organizationalUnitName;
+    }
+
+    public String getStateOrProvinceName() {
+        return stateOrProvinceName;
+    }
+
+    public String getLocalityName() {
+        return localityName;
+    }
+
+    public String getOrganizationalUnitName() {
+        return organizationalUnitName;
     }
 
     public String getIssuer() {

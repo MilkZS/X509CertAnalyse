@@ -41,7 +41,6 @@ public class ZX509Certificate {
         this.subjectPublicKey = subjectPublicKeyInfoImpl.getSubjectPublicKey();
     }
 
-
     public int getVersion() {
         return version;
     }

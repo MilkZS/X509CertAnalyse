@@ -6,6 +6,10 @@ import com.milkdz.x509.tlv.ZTLVContain;
 import com.milkdz.x509.tlv.ZTLVInteger;
 import com.milkdz.x509.util.ByteArrayBuffer;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * Created by MilkZS on 2019/5/22 16:38
  */
@@ -67,7 +71,42 @@ public class ZCertificateData {
         if (!issuer.parse(issuerBase)) return false;
         if (!validityTime.parse(validateBase)) return false;
         if (!subject.parse(subjectBase)) return false;
-        return subjectPublicKeyInfoImpl.parse(publicKeyInfoBase);
+        if (!subjectPublicKeyInfoImpl.parse(publicKeyInfoBase)) return false;
+
+        if ((version == 2 || version == 3) && containBody.itemCount() >= 8) {
+            ZTLVBase extensionBase = containBody.getItem(7);
+            ZTLVContain extensionCon = new ZTLVContain();
+            if (!extensionCon.parse(extensionBase.getValue())) return false;
+
+            ZTLVBase headBase = extensionCon.getItem(0);
+            ZTLVContain headCon = new ZTLVContain();
+            headCon.parse(headBase.getValue());
+            for (int i = 0; i < headCon.itemCount(); i++) {
+                ZTLVBase singleBase = headCon.getItem(i);
+                ZTLVContain extensionChildCon = new ZTLVContain();
+                if (!extensionChildCon.parse(singleBase.getValue())) continue;
+
+                ZTLVBase idBase = extensionChildCon.getItem(0);
+                byte[] idBaseByte = idBase.getValue().toByteArray();
+                switch (idBaseByte[2]) {
+                    case 35: {
+
+                    }
+                    break;
+                    case 19: {
+
+                    }
+                    break;
+                    case 14: {
+
+                    }
+                    break;
+                }
+            }
+
+        }
+
+        return true;
     }
 
     private boolean parseVersion(ZTLVBase base) {
@@ -80,7 +119,7 @@ public class ZCertificateData {
             return false;
 
         //Version,目前没有做值校验，但实际上最高版本号目前应该只有V3
-        this.version = versionByteArr[2] ;
+        this.version = versionByteArr[2];
         return true;
     }
 

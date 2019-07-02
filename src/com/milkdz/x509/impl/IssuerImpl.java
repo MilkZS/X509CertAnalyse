@@ -56,10 +56,19 @@ public class IssuerImpl {
                 this.issuer.setCountryName(value);
             }
             break;
+            case 7:{
+                this.issuer.setLocalityName(value);
+            }break;
+            case 8:{
+                this.issuer.setStateOrProvinceName(value);
+            }break;
             case 10: {
                 this.issuer.setOrganizationName(value);
             }
             break;
+            case 11:{
+                this.issuer.setOrganizationalUnitName(value);
+            }break;
         }
     }
 
