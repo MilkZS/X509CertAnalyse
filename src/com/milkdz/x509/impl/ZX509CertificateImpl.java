@@ -10,13 +10,12 @@ import com.milkdz.x509.util.ByteArrayBuffer;
  */
 public class ZX509CertificateImpl {
 
-    private ByteArrayBuffer m_certData;
-    private int m_certLength;
+    private ByteArrayBuffer mCertData;
+    private int mCertLength;
 
-
-    private ZCertificateData m_tbsCertificate = new ZCertificateData();               //证书主体
-    private AlgorithmIdentifierImpl m_signatureAlgorithm = new AlgorithmIdentifierImpl();    //签名算法标识（签名算法OID，应与TBS中的签名算法标识一致）
-    private ZTLVBitString m_signatureValue = new ZTLVBitString();              //签名值
+    private ZTBSCertificate mTbsCertificate = new ZTBSCertificate();               //证书主体
+    private AlgorithmIdentifierImpl mSignatureAlgorithm = new AlgorithmIdentifierImpl();    //签名算法标识（签名算法OID，应与TBS中的签名算法标识一致）
+    private ZTLVBitString mSignatureValue = new ZTLVBitString();              //签名值
 
     /*
     Certificate  ::=  SEQUENCE  {
@@ -25,12 +24,12 @@ public class ZX509CertificateImpl {
         signatureValue       BIT STRING  }
     */
     public boolean parse(byte[] pbData) {
-        m_certData = new ByteArrayBuffer(pbData.length);
-        m_certData.append(pbData, 0, pbData.length);
+        mCertData = new ByteArrayBuffer(pbData.length);
+        mCertData.append(pbData, 0, pbData.length);
 
         //解析整张证书
         ZTLVBase cert = new ZTLVBase();
-        if (!ZTLVBase.dump(m_certData, cert)) return false;
+        if (!ZTLVBase.dump(mCertData, cert)) return false;
 
         //获取证书body
         ByteArrayBuffer certBody = cert.getValue();
@@ -47,35 +46,35 @@ public class ZX509CertificateImpl {
         ZTLVBase signature = certCon.getItem(2);
 
         //解析证书主体部分
-        if (!m_tbsCertificate.parse(tbsCert)) return false;
+        if (!mTbsCertificate.parse(tbsCert)) return false;
 
         //解析签名算法部分
-        if (!m_signatureAlgorithm.parse(signAlgo)) return false;
+        if (!mSignatureAlgorithm.parse(signAlgo)) return false;
 
         //解析签名值
-        if (!m_signatureValue.parse(signature)) return false;
+        if (!mSignatureValue.parse(signature)) return false;
 
-        m_certLength = cert.getEncodingDataSize();
+        mCertLength = cert.getEncodingDataSize();
         return true;
     }
 
     public ByteArrayBuffer getM_certData() {
-        return m_certData;
+        return mCertData;
     }
 
     public int getM_certLength() {
-        return m_certLength;
+        return mCertLength;
     }
 
-    public ZCertificateData getM_tbsCertificate() {
-        return m_tbsCertificate;
+    public ZTBSCertificate getM_tbsCertificate() {
+        return mTbsCertificate;
     }
 
-    public AlgorithmIdentifierImpl getM_signatureAlgorithm() {
-        return m_signatureAlgorithm;
+    public AlgorithmIdentifierImpl getmSignatureAlgorithm() {
+        return mSignatureAlgorithm;
     }
 
     public ZTLVBitString getM_signatureValue() {
-        return m_signatureValue;
+        return mSignatureValue;
     }
 }

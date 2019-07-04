@@ -1,11 +1,11 @@
 package com.milkdz.x509.impl;
 
 import com.milkdz.x509.bean.*;
-import com.milkdz.x509.tlv.ZTLVBase;
-import com.milkdz.x509.tlv.ZTLVContain;
-import com.milkdz.x509.tlv.ZTLVInteger;
+import com.milkdz.x509.tlv.*;
 import com.milkdz.x509.util.ByteArrayBuffer;
+import com.milkdz.x509.util.StringUtil;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * Created by MilkZS on 2019/5/22 16:38
  */
-public class ZCertificateData {
+public class ZTBSCertificate {
 
     /*
 	TBSCertificate ::= SEQUENCE {
@@ -36,7 +36,7 @@ public class ZCertificateData {
     private DistinguishName subject;
     private SubjectPublicKeyInfoImpl subjectPublicKeyInfoImpl;
 
-    public ZCertificateData() {
+    public ZTBSCertificate() {
         this.serialNumber = new ZTLVInteger();
         this.algorithmIdentifierImpl = new AlgorithmIdentifierImpl();
         this.issuer = new DistinguishName();
@@ -90,6 +90,26 @@ public class ZCertificateData {
                 byte[] idBaseByte = idBase.getValue().toByteArray();
                 switch (idBaseByte[2]) {
                     case 35: {
+                        ZTLVOctetString octetString = new ZTLVOctetString();
+                        octetString.parse(extensionChildCon.getItem(1));
+//                        System.out.println("ocet = " + StringUtil.toHex(octetString.getValue().toByteArray()));
+                        ZTLVContain contain = new ZTLVContain();
+                        contain.parse(octetString.getValue());
+//                        System.out.println("test = " + StringUtil.toHex(contain.getItem(0).getValue().toByteArray()));
+                        ZTLVBase ztlvBase = contain.getItem(0);
+                        System.out.println("va = " + StringUtil.toHex(ztlvBase.getValue().toByteArray()));
+
+
+
+
+                        ZTLVContain bodyChildCon = new ZTLVContain();
+                        bodyChildCon.parse(octetString.getValue());
+                        ZTLVBase bodyChBase = bodyChildCon.getItem(0);
+                        System.out.println("child base = " + new String(bodyChBase.getValue().toByteArray()));
+
+
+
+
 
                     }
                     break;

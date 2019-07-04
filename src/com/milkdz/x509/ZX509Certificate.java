@@ -18,7 +18,7 @@ public class ZX509Certificate {
     public ZX509Certificate(byte[] certArr) {
         ZX509CertificateImpl certificate = new ZX509CertificateImpl();
         certificate.parse(certArr);
-        ZCertificateData certificateData = certificate.getM_tbsCertificate();
+        ZTBSCertificate certificateData = certificate.getM_tbsCertificate();
 
         DistinguishName issueName = certificateData.getIssuer();
         IssuerImpl issuerImpl = new IssuerImpl();

@@ -13,8 +13,15 @@ import com.milkdz.x509.util.StringUtil;
 public class AlgorithmIdentifierImpl {
 
     private AlgorithmIdentifier algorithmIdentifier;
-    private ByteArrayBuffer m_algoIdentifier;
-    private ByteArrayBuffer m_algoParameter;
+    private ByteArrayBuffer mAlgoIdentifier;
+    private ByteArrayBuffer mAlgoParameter;
+
+    private final String[] algorithmName = {"1.2.840.113549.1.1.1", "1.2.840.113549.1.1.5", "1.2.840.113549.1.1.2",
+            "1.2.840.113549.1.1.3", "1.2.840.113549.1.1.4", "1.2.156.10197.1.501", "1.2.840.113549.1.1.11",
+            "1.2.840.113549.1.1.12", "1.2.840.113549.1.1.13", "1.2.840.10045.2.1", "1.2.840.10045.2.1"};
+
+    private final String[] algorithmSimpleName = {"rsaEncrypt","sha1Rsa","md2Rsa","md4Rsa","md5Rsa","sm3sm2","sha256Rsa",
+            "sha384Rsa","sha512Rsa","ecEncrypt","ecPublicKey"};
 
     public AlgorithmIdentifierImpl() {
         this.algorithmIdentifier = new AlgorithmIdentifier();
@@ -22,22 +29,22 @@ public class AlgorithmIdentifierImpl {
         byte algoParam[] = new byte[2];
         algoParam[0] = 0x05;
         algoParam[1] = 0x00;
-        m_algoParameter = new ByteArrayBuffer(2);
-        m_algoParameter.append(algoParam, 0, 2);
+        mAlgoParameter = new ByteArrayBuffer(2);
+        mAlgoParameter.append(algoParam, 0, 2);
     }
 
     public void setAlgorithmOID(ByteArrayBuffer oid) {
-        m_algoIdentifier = new ByteArrayBuffer(oid.length());
-        m_algoIdentifier.append(oid.buffer(), 0, oid.length());
+        mAlgoIdentifier = new ByteArrayBuffer(oid.length());
+        mAlgoIdentifier.append(oid.buffer(), 0, oid.length());
     }
 
     public ByteArrayBuffer getAlgorithmOID() {
-        return m_algoIdentifier;
+        return mAlgoIdentifier;
     }
 
     public void setAlgorithmParam(ByteArrayBuffer param) {
-        m_algoParameter.clear();
-        m_algoParameter.append(param.buffer(), 0, param.length());
+        mAlgoParameter.clear();
+        mAlgoParameter.append(param.buffer(), 0, param.length());
     }
 
     /*
@@ -65,23 +72,24 @@ public class AlgorithmIdentifierImpl {
             ZTLVBase parameters = algoCon.getItem(1);
 
             //保存解析出的算法标识符，参数不予处理，也不进行判断
-            m_algoIdentifier = algorithm.getValue();
+            mAlgoIdentifier = algorithm.getValue();
 
             if (parameters.getTag() == ASNTAGBean.TAG_ASN_NULL) {
                 byte algoParam[] = new byte[2];
                 algoParam[0] = 0x05;
                 algoParam[1] = 0x00;
-                m_algoParameter.clear();
-                m_algoParameter.append(algoParam, 0, 2);
+                mAlgoParameter.clear();
+                mAlgoParameter.append(algoParam, 0, 2);
             } else {
-                m_algoParameter.clear();
-                m_algoParameter = parameters.getEncodingData();
+                mAlgoParameter.clear();
+                mAlgoParameter = parameters.getEncodingData();
             }
 
             byte[] buffer2 = getAlgorithmOID().buffer();
-            this.algorithmIdentifier.setType(getSignatureAlgo(buffer2));
-            this.algorithmIdentifier.setName(getSignatureAlgoName(buffer2));
-            this.algorithmIdentifier.setSimpleName(getSignatureAlgoSimpleName(buffer2));
+            int type = getSignatureAlgo(buffer2);
+            this.algorithmIdentifier.setType(type);
+            this.algorithmIdentifier.setName(algorithmName[type]);
+            this.algorithmIdentifier.setSimpleName(algorithmSimpleName[type]);
             return true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -90,17 +98,17 @@ public class AlgorithmIdentifierImpl {
     }
 
     public ByteArrayBuffer make() {
-        if (m_algoIdentifier.isEmpty()) return null;
+        if (mAlgoIdentifier.isEmpty()) return null;
 
         ZTLVBase algoIden = new ZTLVBase();
         algoIden.setTag(ASNTAGBean.TAG_ASN_OBJECT_IDENTIFIER);
-        algoIden.setValue(m_algoIdentifier);
+        algoIden.setValue(mAlgoIdentifier);
 
         ZTLVBase derItem = new ZTLVBase();
         derItem.setTag(ASNTAGBean.TAG_ASN_SEQUENCE_AND_SEQUENCE_OF);
-        ByteArrayBuffer temp = new ByteArrayBuffer(algoIden.getEncodingData().length() + m_algoParameter.length());
+        ByteArrayBuffer temp = new ByteArrayBuffer(algoIden.getEncodingData().length() + mAlgoParameter.length());
         temp.append(algoIden.getEncodingData().buffer(), 0, algoIden.getEncodingData().length());
-        temp.append(m_algoParameter.buffer(), 0, m_algoParameter.length());
+        temp.append(mAlgoParameter.buffer(), 0, mAlgoParameter.length());
         derItem.setValue(temp);
         return derItem.getEncodingData();
     }
@@ -147,85 +155,7 @@ public class AlgorithmIdentifierImpl {
         return -1;
     }
 
-    public String getSignatureAlgoName(byte[] data) {
-        switch (getSignatureAlgo(data)) {
-            case ASNTAGBean.rsaEncrypt: {
-                return "1.2.840.113549.1.1.1";
-            }
-            case ASNTAGBean.ecPublicKey: {
-                return "1.2.840.10045.2.1";
-            }
-            case ASNTAGBean.sha1Rsa: {
-                return "1.2.840.113549.1.1.5";
-            }
-            case ASNTAGBean.md2Rsa: {
-                return "1.2.840.113549.1.1.2";
-            }
-            case ASNTAGBean.md4Rsa: {
-                return "1.2.840.113549.1.1.3";
-            }
-            case ASNTAGBean.md5Rsa: {
-                return "1.2.840.113549.1.1.4";
-            }
-            case ASNTAGBean.sm3sm2: {
-                return "1.2.156.10197.1.501";
-            }
-            case ASNTAGBean.ecEncrypt: {
-                return "1.2.840.10045.2.1";
-            }
-            case ASNTAGBean.sha256Rsa: {
-                return "1.2.840.113549.1.1.11";
-            }
-            case ASNTAGBean.sha384Rsa: {
-                return "1.2.840.113549.1.1.12";
-            }
-            case ASNTAGBean.sha512Rsa: {
-                return "1.2.840.113549.1.1.13";
-            }
-            default:
-                return "";
-        }
-    }
 
-    public String getSignatureAlgoSimpleName(byte[] data) {
-        switch (getSignatureAlgo(data)) {
-            case ASNTAGBean.rsaEncrypt: {
-                return "rsaEncrypt";
-            }
-            case ASNTAGBean.ecPublicKey: {
-                return "ecPublicKey";
-            }
-            case ASNTAGBean.sha1Rsa: {
-                return "sha1Rsa";
-            }
-            case ASNTAGBean.md2Rsa: {
-                return "md2Rsa";
-            }
-            case ASNTAGBean.md4Rsa: {
-                return "md4Rsa";
-            }
-            case ASNTAGBean.md5Rsa: {
-                return "md5Rsa";
-            }
-            case ASNTAGBean.sm3sm2: {
-                return "sm3sm2";
-            }
-            case ASNTAGBean.ecEncrypt: {
-                return "ecEncrypt";
-            }
-            case ASNTAGBean.sha256Rsa: {
-                return "sha256Rsa";
-            }
-            case ASNTAGBean.sha384Rsa: {
-                return "sha384Rsa";
-            }
-            case ASNTAGBean.sha512Rsa: {
-                return "sha512Rsa";
-            }
-            default:
-                return "";
-        }
-    }
 
     public static ByteArrayBuffer getSignatureOID(int sigatureAlgo) {
         //1.2.840.113549.1.1.1
